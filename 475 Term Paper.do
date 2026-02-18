@@ -1,7 +1,5 @@
 /*
 Student Names: Dhairya Patankar & Li Ping Yu Zeng
-Student Numbers: 1009111934 & 1008126038
-Email Addresses: dhairya.patankar@mail.utoronto.ca & liping.yuzeng@mail.utoronto.ca
 */
 
 clear
@@ -226,4 +224,5 @@ newey brooklyn covid L.brooklyn L2.brooklyn L3.brooklyn L4.brooklyn nyur std_min
 newey queens covid L.queens L2.queens L3.queens L4.queens nyur std_min_wage mortgage_rate median_square_feet new_listing_count t, lag(4)
 
 *save the working file*
+
 save "C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\Term_Paper_Restricted_Variables.dta", replace
