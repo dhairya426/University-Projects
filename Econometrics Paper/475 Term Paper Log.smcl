@@ -1,0 +1,957 @@
+{smcl}
+{com}{sf}{ul off}{txt}{.-}
+      name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\475 Term Paper Log.smcl
+  {txt}log type:  {res}smcl
+ {txt}opened on:  {res}11 Apr 2025, 15:45:30
+
+{com}. do "C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\475 Term Paper.do"
+{txt}
+{com}. /*
+> Student Names: Dhairya Patankar & Li Ping Yu Zeng
+> Student Numbers: 1009111934 & 1008126038
+> Email Addresses: dhairya.patankar@mail.utoronto.ca & liping.yuzeng@mail.utoronto.ca
+> */
+. 
+. clear
+{txt}
+{com}. 
+. *import data for the housing price indices of Manhattan, Queens, and Brooklyn over a 13 year period
+. import delimited "C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\priceIndex_All.csv"
+{res}{txt}(encoding automatically selected: ISO-8859-1)
+{text}(5 vars, 242 obs)
+
+{com}. 
+. *format the date and get it ready to merge with other dataset
+. gen date = date(month, "YMD")
+{txt}
+{com}. replace date = mofd(date)
+{txt}(242 real changes made)
+
+{com}. format date %tm
+{txt}
+{com}. tsset date
+{res}
+{p 0 15 2}{txt:Time variable: }{res:date}{txt:, }{res:{bind:2005m1}}{txt: to }{res:{bind:2025m2}}{p_end}
+{txt}{col 9}Delta: {res}1 month
+{txt}
+{com}. 
+. *keep only data after Jan 2012 inclusive*
+. keep in 85/242
+{txt}(84 observations deleted)
+
+{com}. 
+. *remove uncessessary variables*
+. drop month nyc
+{txt}
+{com}. 
+. *create dummy variable for covid and set it equal to 1 after March 2020*
+. gen covid = 0
+{txt}
+{com}. replace covid = 1 if date > 721
+{txt}(60 real changes made)
+
+{com}. 
+. *save data in main working file*
+. save "C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\Term_Paper_Unrestricted.dta", replace
+{txt}{p 0 4 2}
+file {bf}
+C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\Term_Paper_Unrestricted.dta{rm}
+saved
+{p_end}
+
+{com}. 
+. *clear cache*
+. clear 
+{txt}
+{com}. 
+. *import data for the average 30 year fixed mortgage rate across the USA from 2012 January to 2025 February
+. import delimited "C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\MORTGAGE30US.csv"
+{res}{txt}(encoding automatically selected: ISO-8859-1)
+{text}(2 vars, 687 obs)
+
+{com}. 
+. *format the date to observe the data monthly
+. gen date = date(observation_date, "MDY")
+{txt}
+{com}. format date %td
+{txt}
+{com}. gen month = mofd(date)
+{txt}
+{com}. format month %tm
+{txt}
+{com}. 
+. *since the data is in weekly observations, generate the monthly average mortgage rate by taking the average of the weeks in the month
+. foreach x in observation_date{c -(}
+{txt}  2{com}. 
+.         egen mortgage_rate = mean(mortgage30us), by(month)
+{txt}  3{com}.         
+. {c )-}
+{txt}
+{com}. 
+. *collapse the data to only have each month's average mortgage rate
+. collapse mortgage_rate, by(month)
+{res}{txt}
+{com}. 
+. rename month date
+{res}{txt}
+{com}. 
+. *merge the data sets*
+. merge 1:1 date using "C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\Term_Paper_Unrestricted.dta"
+{res}
+{txt}{col 5}Result{col 33}Number of obs
+{col 5}{hline 41}
+{col 5}Not matched{col 30}{res}               0
+{txt}{col 5}Matched{col 30}{res}             158{txt}  (_merge==3)
+{col 5}{hline 41}
+
+{com}. drop _merge
+{txt}
+{com}. 
+. *save merged data in main working file*
+. save "C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\Term_Paper_Unrestricted.dta", replace
+{txt}{p 0 4 2}
+file {bf}
+C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\Term_Paper_Unrestricted.dta{rm}
+saved
+{p_end}
+
+{com}. 
+. *clear the cache*
+. clear
+{txt}
+{com}. 
+. *import data for the average unemployment rate in New York State from 2012 January to 2025 January
+. import delimited "C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\NYUR.csv"
+{res}{txt}(encoding automatically selected: ISO-8859-1)
+{text}(2 vars, 157 obs)
+
+{com}. 
+. *format the date to observe the data monthly
+. gen date = date(observation_date, "MDY")
+{txt}
+{com}. replace date = mofd(date)
+{txt}(157 real changes made)
+
+{com}. format date %tm
+{txt}
+{com}. drop observation_date
+{txt}
+{com}. 
+. *merge the data sets*
+. merge 1:1 date using "C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\Term_Paper_Unrestricted.dta"
+{res}
+{txt}{col 5}Result{col 33}Number of obs
+{col 5}{hline 41}
+{col 5}Not matched{col 30}{res}               1
+{txt}{col 9}from master{col 30}{res}               0{txt}  (_merge==1)
+{col 9}from using{col 30}{res}               1{txt}  (_merge==2)
+
+{col 5}Matched{col 30}{res}             157{txt}  (_merge==3)
+{col 5}{hline 41}
+
+{com}. drop _merge
+{txt}
+{com}. 
+. *save merged data in main working file*
+. save "C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\Term_Paper_Unrestricted.dta", replace
+{txt}{p 0 4 2}
+file {bf}
+C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\Term_Paper_Unrestricted.dta{rm}
+saved
+{p_end}
+
+{com}. 
+. *clear cache*
+. clear
+{txt}
+{com}. 
+. *import data for the state minimum wage in New York State*
+. import delimited "C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\STTMINWGNY.csv"
+{res}{txt}(encoding automatically selected: ISO-8859-1)
+{text}(2 vars, 14 obs)
+
+{com}. 
+. *repeat the data for each year 12 times to simulate monthly data*
+. expand 12
+{txt}(154 observations created)
+
+{com}. 
+. *format the data in terms of dates*
+. gen year = date(observation_date, "YMD")
+{txt}
+{com}. replace year = year(year)
+{txt}(168 real changes made)
+
+{com}. 
+. *create the month variable assigned to each month's minimum wage*
+. bysort observation_date: gen month = _n
+{txt}
+{com}. gen date = ym(year, month)
+{txt}
+{com}. format date %tm
+{txt}
+{com}. 
+. *drop the last 10 observations as the other data only goes until Feb 2025*
+. drop in 160/168
+{txt}(9 observations deleted)
+
+{com}. 
+. *remove the unecessary variables*
+. drop year month observation_date
+{txt}
+{com}. 
+. rename sttminwgny min_wage
+{res}{txt}
+{com}. 
+. *merge data into main working file*
+. merge 1:1 date using "C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\Term_Paper_Unrestricted.dta"
+{res}
+{txt}{col 5}Result{col 33}Number of obs
+{col 5}{hline 41}
+{col 5}Not matched{col 30}{res}               1
+{txt}{col 9}from master{col 30}{res}               1{txt}  (_merge==1)
+{col 9}from using{col 30}{res}               0{txt}  (_merge==2)
+
+{col 5}Matched{col 30}{res}             158{txt}  (_merge==3)
+{col 5}{hline 41}
+
+{com}. drop _merge
+{txt}
+{com}. 
+. *drop feb 2025 data*
+. drop in 158/159
+{txt}(2 observations deleted)
+
+{com}. 
+. *standardize the minimum wage in terms of 2016 dollars in order to deflate them to match the units of the housing price index*
+. gen std_min_wage = min_wage/min_wage[49]
+{txt}
+{com}. 
+. *show the summary statistics of the unrestricted dataset*
+. summarize
+
+{txt}    Variable {c |}        Obs        Mean    Std. dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 4}min_wage {c |}{res}        157    10.74076     2.67264       7.25       16.5
+{txt}{space 8}date {c |}{res}        157         702     45.4661        624        780
+{txt}{space 8}nyur {c |}{res}        157    5.769427    2.261088        3.8       16.7
+{txt}mortgage_r~e {c |}{res}        157    4.377089    1.249509      2.684       7.62
+{txt}{space 4}brooklyn {c |}{res}        157    672823.4    65638.45     525312     734978
+{txt}{hline 13}{c +}{hline 57}
+{space 3}manhattan {c |}{res}        157     1074139    72312.07     890966    1170453
+{txt}{space 6}queens {c |}{res}        157    477394.4    47145.71     392400     527845
+{txt}{space 7}covid {c |}{res}        157    .3757962    .4858776          0          1
+{txt}std_min_wage {c |}{res}        157    1.193418      .29696   .8055556   1.833333
+{txt}
+{com}. 
+. *save merged data in main working file*
+. save "C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\Term_Paper_Unrestricted.dta", replace
+{txt}{p 0 4 2}
+file {bf}
+C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\Term_Paper_Unrestricted.dta{rm}
+saved
+{p_end}
+
+{com}. 
+. *reduce dataset size to restricted version*
+. keep in 55/157
+{txt}(54 observations deleted)
+
+{com}. 
+. *show summary statistics of the restricted dataset 
+. summarize
+
+{txt}    Variable {c |}        Obs        Mean    Std. dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 4}min_wage {c |}{res}        103     12.2068    2.087792          9       16.5
+{txt}{space 8}date {c |}{res}        103         729    29.87753        678        780
+{txt}{space 8}nyur {c |}{res}        103    5.254369    2.431645        3.8       16.7
+{txt}mortgage_r~e {c |}{res}        103    4.633859    1.463541      2.684       7.62
+{txt}{space 4}brooklyn {c |}{res}        103    712149.5    14127.66     672522     734978
+{txt}{hline 13}{c +}{hline 57}
+{space 3}manhattan {c |}{res}        103     1099055    44083.55    1023761    1170453
+{txt}{space 6}queens {c |}{res}        103    508914.1    16264.97     457433     527845
+{txt}{space 7}covid {c |}{res}        103    .5728155    .4970884          0          1
+{txt}std_min_wage {c |}{res}        103    1.356311    .2319769          1   1.833333
+{txt}
+{com}. 
+. save "C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\Term_Paper_Restricted.dta", replace
+{txt}{p 0 4 2}
+file {bf}
+C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\Term_Paper_Restricted.dta{rm}
+saved
+{p_end}
+
+{com}. 
+. *clear cache*
+. clear
+{txt}
+{com}. 
+. *import the housing market characteristics data*
+. import delimited "C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\RDC_Inventory_Core_Metrics_State_History.csv"
+{res}{txt}(encoding automatically selected: ISO-8859-1)
+{text}(40 vars, 5,304 obs)
+
+{com}. 
+. *remove non-New York Data*
+. drop if state_id != "NY"
+{txt}(5,200 observations deleted)
+
+{com}. 
+. *only keep the metrics that are needed*
+. collapse new_listing_count median_square_feet, by(month_date_yyyymm)
+{res}{txt}
+{com}. 
+. *convert the observation date variable into string type*
+. tostring month_date_yyyymm, generate(observation_date)
+{txt}observation_date generated as {res:str6}
+
+{com}. drop month_date_yyyymm
+{txt}
+{com}. 
+. *convert observation date to proper date type to be able to merge with restricted data set*
+. gen date = date(observation_date, "YM")
+{txt}
+{com}. replace date = mofd(date)
+{txt}(104 real changes made)
+
+{com}. format date %tm
+{txt}
+{com}. drop observation_date
+{txt}
+{com}. 
+. *merge new variables with the restricted data set and create a new dataset for comparison*
+. merge 1:1 date using "C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\Term_Paper_Restricted.dta"
+{res}
+{txt}{col 5}Result{col 33}Number of obs
+{col 5}{hline 41}
+{col 5}Not matched{col 30}{res}               1
+{txt}{col 9}from master{col 30}{res}               1{txt}  (_merge==1)
+{col 9}from using{col 30}{res}               0{txt}  (_merge==2)
+
+{col 5}Matched{col 30}{res}             103{txt}  (_merge==3)
+{col 5}{hline 41}
+
+{com}. drop _merge
+{txt}
+{com}. 
+. *drop Feb 2025 observation*
+. drop in 104/104
+{txt}(1 observation deleted)
+
+{com}. 
+. *save the working file*
+. save "C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\Term_Paper_Restricted_Variables.dta", replace
+{txt}{p 0 4 2}
+file {bf}
+C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\Term_Paper_Restricted_Variables.dta{rm}
+saved
+{p_end}
+
+{com}. 
+. *show summary statistics of the restricted dataset with the addition of the new control variables*
+. summarize
+
+{txt}    Variable {c |}        Obs        Mean    Std. dev.       Min        Max
+{hline 13}{c +}{hline 57}
+new_listin~t {c |}{res}        103    16504.31    4247.874       7100      26296
+{txt}median_squ~t {c |}{res}        103     1687.01    106.1733       1500       1829
+{txt}{space 8}date {c |}{res}        103         729    29.87753        678        780
+{txt}{space 4}min_wage {c |}{res}        103     12.2068    2.087792          9       16.5
+{txt}{space 8}nyur {c |}{res}        103    5.254369    2.431645        3.8       16.7
+{txt}{hline 13}{c +}{hline 57}
+mortgage_r~e {c |}{res}        103    4.633859    1.463541      2.684       7.62
+{txt}{space 4}brooklyn {c |}{res}        103    712149.5    14127.66     672522     734978
+{txt}{space 3}manhattan {c |}{res}        103     1099055    44083.55    1023761    1170453
+{txt}{space 6}queens {c |}{res}        103    508914.1    16264.97     457433     527845
+{txt}{space 7}covid {c |}{res}        103    .5728155    .4970884          0          1
+{txt}{hline 13}{c +}{hline 57}
+std_min_wage {c |}{res}        103    1.356311    .2319769          1   1.833333
+{txt}
+{com}. 
+. *generate graphs showing the housing market indexes in each borough over time*
+. twoway (line manhattan date)
+{res}{txt}
+{com}. twoway (line brooklyn date)
+{res}{txt}
+{com}. twoway (line queens date)
+{res}{txt}
+{com}. 
+. *test for unit roots in all variables*
+. dfuller manhattan
+
+{txt}Dickey–Fuller test for unit root{col 43}Number of obs  = {res}{ralign 3:102}
+{txt}Variable: {res}manhattan{txt}{col 43}Number of lags = {res}{ralign 3:0}
+
+{txt}H0: Random walk without drift, d = 0
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -1.048       -3.509       -2.890       -2.580
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.7353{txt}.
+
+{com}. dfuller L.manhattan
+
+{txt}Dickey–Fuller test for unit root{col 43}Number of obs  = {res}{ralign 3:101}
+{txt}Variable: {res}L.manhattan{txt}{col 43}Number of lags = {res}{ralign 3:0}
+
+{txt}H0: Random walk without drift, d = 0
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -0.958       -3.510       -2.890       -2.580
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.7684{txt}.
+
+{com}. dfuller L2.manhattan
+
+{txt}Dickey–Fuller test for unit root{col 43}Number of obs  = {res}{ralign 3:100}
+{txt}Variable: {res}L2.manhattan{txt}{col 43}Number of lags = {res}{ralign 3:0}
+
+{txt}H0: Random walk without drift, d = 0
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -0.894       -3.510       -2.890       -2.580
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.7901{txt}.
+
+{com}. dfuller L3.manhattan
+
+{txt}Dickey–Fuller test for unit root{col 44}Number of obs  = {res}{ralign 2:99}
+{txt}Variable: {res}L3.manhattan{txt}{col 44}Number of lags = {res}{ralign 2:0}
+
+{txt}H0: Random walk without drift, d = 0
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -0.832       -3.511       -2.891       -2.580
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.8095{txt}.
+
+{com}. dfuller L4.manhattan
+
+{txt}Dickey–Fuller test for unit root{col 44}Number of obs  = {res}{ralign 2:98}
+{txt}Variable: {res}L4.manhattan{txt}{col 44}Number of lags = {res}{ralign 2:0}
+
+{txt}H0: Random walk without drift, d = 0
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -0.951       -3.513       -2.892       -2.581
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.7709{txt}.
+
+{com}. dfuller brooklyn
+
+{txt}Dickey–Fuller test for unit root{col 43}Number of obs  = {res}{ralign 3:102}
+{txt}Variable: {res}brooklyn{txt}{col 43}Number of lags = {res}{ralign 3:0}
+
+{txt}H0: Random walk without drift, d = 0
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -1.562       -3.509       -2.890       -2.580
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.5026{txt}.
+
+{com}. dfuller L.brooklyn
+
+{txt}Dickey–Fuller test for unit root{col 43}Number of obs  = {res}{ralign 3:101}
+{txt}Variable: {res}L.brooklyn{txt}{col 43}Number of lags = {res}{ralign 3:0}
+
+{txt}H0: Random walk without drift, d = 0
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -1.622       -3.510       -2.890       -2.580
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.4716{txt}.
+
+{com}. dfuller L2.brooklyn
+
+{txt}Dickey–Fuller test for unit root{col 43}Number of obs  = {res}{ralign 3:100}
+{txt}Variable: {res}L2.brooklyn{txt}{col 43}Number of lags = {res}{ralign 3:0}
+
+{txt}H0: Random walk without drift, d = 0
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -1.730       -3.510       -2.890       -2.580
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.4157{txt}.
+
+{com}. dfuller L3.brooklyn
+
+{txt}Dickey–Fuller test for unit root{col 44}Number of obs  = {res}{ralign 2:99}
+{txt}Variable: {res}L3.brooklyn{txt}{col 44}Number of lags = {res}{ralign 2:0}
+
+{txt}H0: Random walk without drift, d = 0
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -1.850       -3.511       -2.891       -2.580
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.3561{txt}.
+
+{com}. dfuller L4.brooklyn
+
+{txt}Dickey–Fuller test for unit root{col 44}Number of obs  = {res}{ralign 2:98}
+{txt}Variable: {res}L4.brooklyn{txt}{col 44}Number of lags = {res}{ralign 2:0}
+
+{txt}H0: Random walk without drift, d = 0
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -1.877       -3.513       -2.892       -2.581
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.3429{txt}.
+
+{com}. dfuller queens
+
+{txt}Dickey–Fuller test for unit root{col 43}Number of obs  = {res}{ralign 3:102}
+{txt}Variable: {res}queens{txt}{col 43}Number of lags = {res}{ralign 3:0}
+
+{txt}H0: Random walk without drift, d = 0
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -4.135       -3.509       -2.890       -2.580
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.0008{txt}.
+
+{com}. dfuller L.queens
+
+{txt}Dickey–Fuller test for unit root{col 43}Number of obs  = {res}{ralign 3:101}
+{txt}Variable: {res}L.queens{txt}{col 43}Number of lags = {res}{ralign 3:0}
+
+{txt}H0: Random walk without drift, d = 0
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -4.080       -3.510       -2.890       -2.580
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.0010{txt}.
+
+{com}. dfuller L2.queens
+
+{txt}Dickey–Fuller test for unit root{col 43}Number of obs  = {res}{ralign 3:100}
+{txt}Variable: {res}L2.queens{txt}{col 43}Number of lags = {res}{ralign 3:0}
+
+{txt}H0: Random walk without drift, d = 0
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -4.086       -3.510       -2.890       -2.580
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.0010{txt}.
+
+{com}. dfuller L3.queens
+
+{txt}Dickey–Fuller test for unit root{col 44}Number of obs  = {res}{ralign 2:99}
+{txt}Variable: {res}L3.queens{txt}{col 44}Number of lags = {res}{ralign 2:0}
+
+{txt}H0: Random walk without drift, d = 0
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -4.100       -3.511       -2.891       -2.580
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.0010{txt}.
+
+{com}. dfuller L4.queens
+
+{txt}Dickey–Fuller test for unit root{col 44}Number of obs  = {res}{ralign 2:98}
+{txt}Variable: {res}L4.queens{txt}{col 44}Number of lags = {res}{ralign 2:0}
+
+{txt}H0: Random walk without drift, d = 0
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -4.093       -3.513       -2.892       -2.581
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.0010{txt}.
+
+{com}. dfuller covid
+
+{txt}Dickey–Fuller test for unit root{col 43}Number of obs  = {res}{ralign 3:102}
+{txt}Variable: {res}covid{txt}{col 43}Number of lags = {res}{ralign 3:0}
+
+{txt}H0: Random walk without drift, d = 0
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -1.150       -3.509       -2.890       -2.580
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.6947{txt}.
+
+{com}. dfuller nyur
+
+{txt}Dickey–Fuller test for unit root{col 43}Number of obs  = {res}{ralign 3:102}
+{txt}Variable: {res}nyur{txt}{col 43}Number of lags = {res}{ralign 3:0}
+
+{txt}H0: Random walk without drift, d = 0
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -2.570       -3.509       -2.890       -2.580
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.0994{txt}.
+
+{com}. dfuller std_min_wage
+
+{txt}Dickey–Fuller test for unit root{col 43}Number of obs  = {res}{ralign 3:102}
+{txt}Variable: {res}std_min_wage{txt}{col 43}Number of lags = {res}{ralign 3:0}
+
+{txt}H0: Random walk without drift, d = 0
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}      0.125       -3.509       -2.890       -2.580
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.9677{txt}.
+
+{com}. dfuller mortgage_rate
+
+{txt}Dickey–Fuller test for unit root{col 43}Number of obs  = {res}{ralign 3:102}
+{txt}Variable: {res}mortgage_rate{txt}{col 43}Number of lags = {res}{ralign 3:0}
+
+{txt}H0: Random walk without drift, d = 0
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -0.182       -3.509       -2.890       -2.580
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.9406{txt}.
+
+{com}. dfuller new_listing_count
+
+{txt}Dickey–Fuller test for unit root{col 43}Number of obs  = {res}{ralign 3:102}
+{txt}Variable: {res}new_listing_co~t{txt}{col 43}Number of lags = {res}{ralign 3:0}
+
+{txt}H0: Random walk without drift, d = 0
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -3.569       -3.509       -2.890       -2.580
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.0064{txt}.
+
+{com}. dfuller median_square_feet
+
+{txt}Dickey–Fuller test for unit root{col 43}Number of obs  = {res}{ralign 3:102}
+{txt}Variable: {res}median_square_~t{txt}{col 43}Number of lags = {res}{ralign 3:0}
+
+{txt}H0: Random walk without drift, d = 0
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -0.534       -3.509       -2.890       -2.580
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.8852{txt}.
+
+{com}. 
+. *create a time variable to account for time trends in the data*
+. gen t = _n
+{txt}
+{com}. 
+. *use the Engle-Granger test to see whether Manhattan and Brooklyn models are cointegrated as they follow a unit root process*
+. reg manhattan covid L.manhattan L2.manhattan L3.manhattan L4.manhattan nyur std_min_wage mortgage_rate median_square_feet new_listing_count t
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}        99
+{txt}{hline 13}{c +}{hline 34}   F(11, 87)       = {res}  1014.09
+{txt}       Model {c |} {res} 1.8436e+11        11  1.6760e+10   {txt}Prob > F        ={res}    0.0000
+{txt}    Residual {c |} {res} 1.4378e+09        87  16526746.6   {txt}R-squared       ={res}    0.9923
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.9913
+{txt}       Total {c |} {res} 1.8579e+11        98  1.8958e+09   {txt}Root MSE        =   {res} 4065.3
+
+{txt}{hline 19}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}         manhattan{col 20}{c |} Coefficient{col 32}  Std. err.{col 44}      t{col 52}   P>|t|{col 60}     [95% con{col 73}f. interval]
+{hline 19}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 13}covid {c |}{col 20}{res}{space 2}-2627.119{col 32}{space 2} 3928.543{col 43}{space 1}   -0.67{col 52}{space 3}0.505{col 60}{space 4}-10435.52{col 73}{space 3} 5181.286
+{txt}{space 18} {c |}
+{space 9}manhattan {c |}
+{space 15}L1. {c |}{col 20}{res}{space 2} 1.148968{col 32}{space 2} .1041939{col 43}{space 1}   11.03{col 52}{space 3}0.000{col 60}{space 4} .9418718{col 73}{space 3} 1.356065
+{txt}{space 15}L2. {c |}{col 20}{res}{space 2} .1810614{col 32}{space 2}  .159618{col 43}{space 1}    1.13{col 52}{space 3}0.260{col 60}{space 4}-.1361967{col 73}{space 3} .4983195
+{txt}{space 15}L3. {c |}{col 20}{res}{space 2}-.2664232{col 32}{space 2}  .158069{col 43}{space 1}   -1.69{col 52}{space 3}0.095{col 60}{space 4}-.5806025{col 73}{space 3} .0477561
+{txt}{space 15}L4. {c |}{col 20}{res}{space 2}-.1460294{col 32}{space 2} .1080303{col 43}{space 1}   -1.35{col 52}{space 3}0.180{col 60}{space 4}-.3607514{col 73}{space 3} .0686925
+{txt}{space 18} {c |}
+{space 14}nyur {c |}{col 20}{res}{space 2} 164.1425{col 32}{space 2} 395.9414{col 43}{space 1}    0.41{col 52}{space 3}0.679{col 60}{space 4}-622.8338{col 73}{space 3} 951.1189
+{txt}{space 6}std_min_wage {c |}{col 20}{res}{space 2} 13612.35{col 32}{space 2} 10046.19{col 43}{space 1}    1.35{col 52}{space 3}0.179{col 60}{space 4}-6355.551{col 73}{space 3} 33580.25
+{txt}{space 5}mortgage_rate {c |}{col 20}{res}{space 2} 1475.659{col 32}{space 2}  841.071{col 43}{space 1}    1.75{col 52}{space 3}0.083{col 60}{space 4}-196.0608{col 73}{space 3} 3147.379
+{txt}median_square_feet {c |}{col 20}{res}{space 2}-15.75004{col 32}{space 2} 12.26626{col 43}{space 1}   -1.28{col 52}{space 3}0.203{col 60}{space 4}-40.13056{col 73}{space 3} 8.630486
+{txt}{space 1}new_listing_count {c |}{col 20}{res}{space 2} .1518282{col 32}{space 2} .1203619{col 43}{space 1}    1.26{col 52}{space 3}0.211{col 60}{space 4}-.0874041{col 73}{space 3} .3910606
+{txt}{space 17}t {c |}{col 20}{res}{space 2}-242.0458{col 32}{space 2} 108.2027{col 43}{space 1}   -2.24{col 52}{space 3}0.028{col 60}{space 4}-457.1104{col 73}{space 3}-26.98125
+{txt}{space 13}_cons {c |}{col 20}{res}{space 2}   102571{col 32}{space 2} 42358.85{col 43}{space 1}    2.42{col 52}{space 3}0.018{col 60}{space 4} 18378.22{col 73}{space 3} 186763.8
+{txt}{hline 19}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. 
+. predict mres, residuals
+{txt}(4 missing values generated)
+
+{com}. dfuller mres
+
+{txt}Dickey–Fuller test for unit root{col 44}Number of obs  = {res}{ralign 2:98}
+{txt}Variable: {res}mres{txt}{col 44}Number of lags = {res}{ralign 2:0}
+
+{txt}H0: Random walk without drift, d = 0
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -9.952       -3.513       -2.892       -2.581
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.0000{txt}.
+
+{com}. 
+. reg brooklyn covid L.brooklyn L2.brooklyn L3.brooklyn L4.brooklyn nyur std_min_wage mortgage_rate median_square_feet new_listing_count t
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}        99
+{txt}{hline 13}{c +}{hline 34}   F(11, 87)       = {res}    78.52
+{txt}       Model {c |} {res} 1.7862e+10        11  1.6239e+09   {txt}Prob > F        ={res}    0.0000
+{txt}    Residual {c |} {res} 1.7993e+09        87  20681267.7   {txt}R-squared       ={res}    0.9085
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.8969
+{txt}       Total {c |} {res} 1.9662e+10        98   200630113   {txt}Root MSE        =   {res} 4547.7
+
+{txt}{hline 19}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}          brooklyn{col 20}{c |} Coefficient{col 32}  Std. err.{col 44}      t{col 52}   P>|t|{col 60}     [95% con{col 73}f. interval]
+{hline 19}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 13}covid {c |}{col 20}{res}{space 2}-160.7492{col 32}{space 2} 4421.193{col 43}{space 1}   -0.04{col 52}{space 3}0.971{col 60}{space 4}-8948.348{col 73}{space 3}  8626.85
+{txt}{space 18} {c |}
+{space 10}brooklyn {c |}
+{space 15}L1. {c |}{col 20}{res}{space 2} .6554831{col 32}{space 2} .1018466{col 43}{space 1}    6.44{col 52}{space 3}0.000{col 60}{space 4}  .453052{col 73}{space 3} .8579142
+{txt}{space 15}L2. {c |}{col 20}{res}{space 2} .0853469{col 32}{space 2} .1242091{col 43}{space 1}    0.69{col 52}{space 3}0.494{col 60}{space 4} -.161532{col 73}{space 3} .3322259
+{txt}{space 15}L3. {c |}{col 20}{res}{space 2} .2554328{col 32}{space 2} .1222629{col 43}{space 1}    2.09{col 52}{space 3}0.040{col 60}{space 4} .0124221{col 73}{space 3} .4984436
+{txt}{space 15}L4. {c |}{col 20}{res}{space 2} -.300036{col 32}{space 2} .0951639{col 43}{space 1}   -3.15{col 52}{space 3}0.002{col 60}{space 4}-.4891846{col 73}{space 3}-.1108875
+{txt}{space 18} {c |}
+{space 14}nyur {c |}{col 20}{res}{space 2}-527.2816{col 32}{space 2} 441.8624{col 43}{space 1}   -1.19{col 52}{space 3}0.236{col 60}{space 4}-1405.531{col 73}{space 3} 350.9677
+{txt}{space 6}std_min_wage {c |}{col 20}{res}{space 2} 30992.42{col 32}{space 2} 11423.53{col 43}{space 1}    2.71{col 52}{space 3}0.008{col 60}{space 4} 8286.913{col 73}{space 3} 53697.92
+{txt}{space 5}mortgage_rate {c |}{col 20}{res}{space 2} 1456.429{col 32}{space 2} 716.8444{col 43}{space 1}    2.03{col 52}{space 3}0.045{col 60}{space 4} 31.62291{col 73}{space 3} 2881.235
+{txt}median_square_feet {c |}{col 20}{res}{space 2} 25.93915{col 32}{space 2}  17.1759{col 43}{space 1}    1.51{col 52}{space 3}0.135{col 60}{space 4}-8.199815{col 73}{space 3} 60.07811
+{txt}{space 1}new_listing_count {c |}{col 20}{res}{space 2} .0639247{col 32}{space 2} .1381338{col 43}{space 1}    0.46{col 52}{space 3}0.645{col 60}{space 4}-.2106312{col 73}{space 3} .3384806
+{txt}{space 17}t {c |}{col 20}{res}{space 2}-220.8594{col 32}{space 2} 110.6546{col 43}{space 1}   -2.00{col 52}{space 3}0.049{col 60}{space 4}-440.7974{col 73}{space 3}-.9214182
+{txt}{space 13}_cons {c |}{col 20}{res}{space 2} 137463.4{col 32}{space 2} 42157.75{col 43}{space 1}    3.26{col 52}{space 3}0.002{col 60}{space 4} 53670.28{col 73}{space 3} 221256.5
+{txt}{hline 19}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. 
+. predict bres, residuals
+{txt}(4 missing values generated)
+
+{com}. dfuller bres
+
+{txt}Dickey–Fuller test for unit root{col 44}Number of obs  = {res}{ralign 2:98}
+{txt}Variable: {res}bres{txt}{col 44}Number of lags = {res}{ralign 2:0}
+
+{txt}H0: Random walk without drift, d = 0
+
+{col 40}Dickey–Fuller
+{col 20}Test{col 30}{hline 8} critical value {hline 9}
+              statistic           1%           5%          10%
+{hline 62}
+ Z(t)       {res}     -9.621       -3.513       -2.892       -2.581
+{txt}{hline 62}
+MacKinnon approximate {it:p}-value for Z(t) = {res}0.0000{txt}.
+
+{com}. 
+. *test whether the residuals are stationary by testing for cointegration*
+. gen lagmres = L.mres
+{txt}(5 missing values generated)
+
+{com}. gen deltamres = mres - lagmres
+{txt}(5 missing values generated)
+
+{com}. reg deltamres lagmres
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}        98
+{txt}{hline 13}{c +}{hline 34}   F(1, 96)        = {res}    99.04
+{txt}       Model {c |} {res} 1.4825e+09         1  1.4825e+09   {txt}Prob > F        ={res}    0.0000
+{txt}    Residual {c |} {res} 1.4370e+09        96  14968926.9   {txt}R-squared       ={res}    0.5078
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.5027
+{txt}       Total {c |} {res} 2.9195e+09        97  30098445.3   {txt}Root MSE        =   {res}   3869
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}   deltamres{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}lagmres {c |}{col 14}{res}{space 2}-1.021369{col 26}{space 2} .1026304{col 37}{space 1}   -9.95{col 46}{space 3}0.000{col 54}{space 4}-1.225089{col 67}{space 3}-.8176495
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 3.187615{col 26}{space 2} 390.8481{col 37}{space 1}    0.01{col 46}{space 3}0.994{col 54}{space 4}-772.6398{col 67}{space 3}  779.015
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. 
+. gen lagbres = L.bres
+{txt}(5 missing values generated)
+
+{com}. gen deltabres = bres - L.bres
+{txt}(5 missing values generated)
+
+{com}. reg deltabres lagbres
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}        98
+{txt}{hline 13}{c +}{hline 34}   F(1, 96)        = {res}    92.56
+{txt}       Model {c |} {res} 1.7328e+09         1  1.7328e+09   {txt}Prob > F        ={res}    0.0000
+{txt}    Residual {c |} {res} 1.7972e+09        96  18720849.3   {txt}R-squared       ={res}    0.4909
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.4856
+{txt}       Total {c |} {res} 3.5300e+09        97  36391779.2   {txt}Root MSE        =   {res} 4326.8
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}   deltabres{col 14}{c |} Coefficient{col 26}  Std. err.{col 38}      t{col 46}   P>|t|{col 54}     [95% con{col 67}f. interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}lagbres {c |}{col 14}{res}{space 2}-.9837087{col 26}{space 2}  .102248{col 37}{space 1}   -9.62{col 46}{space 3}0.000{col 54}{space 4}-1.186669{col 67}{space 3} -.780748
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 13.30079{col 26}{space 2} 437.0793{col 37}{space 1}    0.03{col 46}{space 3}0.976{col 54}{space 4}-854.2948{col 67}{space 3} 880.8964
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. 
+. *generate graphs of the residuals for the unit root processes to visually ensure they are stationary*
+. twoway (line mres date)
+{res}{txt}
+{com}. twoway (line bres date)
+{res}{txt}
+{com}. 
+. *as the residuals are stationary for the unit root processes, and the unit root processes cointegrate, we can run the OLS regression using HAC-Robust Standard Errors to estimate the long term effect of COVID-19 regulations on the monthly housing price index for each borough*
+. newey manhattan covid L.manhattan L2.manhattan L3.manhattan L4.manhattan nyur std_min_wage mortgage_rate median_square_feet new_listing_count t, lag(4)
+
+{txt}Regression with Newey–West standard errors{col 49}Number of obs{col 67}= {res}        99
+{txt}Maximum lag = {res}4{col 49}{txt}F( 11,        87){col 67}= {res}   2113.51
+{col 49}{txt}Prob > F{col 67}= {res}    0.0000
+
+{txt}{hline 19}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 20}{c |}{col 32}  Newey–West
+{col 1}         manhattan{col 20}{c |} Coefficient{col 32}  std. err.{col 44}      t{col 52}   P>|t|{col 60}     [95% con{col 73}f. interval]
+{hline 19}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 13}covid {c |}{col 20}{res}{space 2}-2627.119{col 32}{space 2} 2130.284{col 43}{space 1}   -1.23{col 52}{space 3}0.221{col 60}{space 4}-6861.289{col 73}{space 3} 1607.051
+{txt}{space 18} {c |}
+{space 9}manhattan {c |}
+{space 15}L1. {c |}{col 20}{res}{space 2} 1.148968{col 32}{space 2} .0973479{col 43}{space 1}   11.80{col 52}{space 3}0.000{col 60}{space 4} .9554789{col 73}{space 3} 1.342458
+{txt}{space 15}L2. {c |}{col 20}{res}{space 2} .1810614{col 32}{space 2} .1702569{col 43}{space 1}    1.06{col 52}{space 3}0.291{col 60}{space 4}-.1573427{col 73}{space 3} .5194655
+{txt}{space 15}L3. {c |}{col 20}{res}{space 2}-.2664232{col 32}{space 2}   .17686{col 43}{space 1}   -1.51{col 52}{space 3}0.136{col 60}{space 4}-.6179516{col 73}{space 3} .0851052
+{txt}{space 15}L4. {c |}{col 20}{res}{space 2}-.1460294{col 32}{space 2} .1076592{col 43}{space 1}   -1.36{col 52}{space 3}0.178{col 60}{space 4}-.3600138{col 73}{space 3} .0679549
+{txt}{space 18} {c |}
+{space 14}nyur {c |}{col 20}{res}{space 2} 164.1425{col 32}{space 2} 206.0013{col 43}{space 1}    0.80{col 52}{space 3}0.428{col 60}{space 4}-245.3073{col 73}{space 3} 573.5924
+{txt}{space 6}std_min_wage {c |}{col 20}{res}{space 2} 13612.35{col 32}{space 2} 7763.172{col 43}{space 1}    1.75{col 52}{space 3}0.083{col 60}{space 4}-1817.798{col 73}{space 3} 29042.49
+{txt}{space 5}mortgage_rate {c |}{col 20}{res}{space 2} 1475.659{col 32}{space 2} 772.4184{col 43}{space 1}    1.91{col 52}{space 3}0.059{col 60}{space 4} -59.6063{col 73}{space 3} 3010.924
+{txt}median_square_feet {c |}{col 20}{res}{space 2}-15.75004{col 32}{space 2} 7.848798{col 43}{space 1}   -2.01{col 52}{space 3}0.048{col 60}{space 4}-31.35037{col 73}{space 3}-.1497006
+{txt}{space 1}new_listing_count {c |}{col 20}{res}{space 2} .1518282{col 32}{space 2} .1149426{col 43}{space 1}    1.32{col 52}{space 3}0.190{col 60}{space 4}-.0766326{col 73}{space 3}  .380289
+{txt}{space 17}t {c |}{col 20}{res}{space 2}-242.0458{col 32}{space 2} 74.19698{col 43}{space 1}   -3.26{col 52}{space 3}0.002{col 60}{space 4}-389.5204{col 73}{space 3}-94.57127
+{txt}{space 13}_cons {c |}{col 20}{res}{space 2}   102571{col 32}{space 2} 36641.72{col 43}{space 1}    2.80{col 52}{space 3}0.006{col 60}{space 4} 29741.62{col 73}{space 3} 175400.4
+{txt}{hline 19}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+
+{com}. 
+. newey brooklyn covid L.brooklyn L2.brooklyn L3.brooklyn L4.brooklyn nyur std_min_wage mortgage_rate median_square_feet new_listing_count t, lag(4)
+
+{txt}Regression with Newey–West standard errors{col 49}Number of obs{col 67}= {res}        99
+{txt}Maximum lag = {res}4{col 49}{txt}F( 11,        87){col 67}= {res}    108.59
+{col 49}{txt}Prob > F{col 67}= {res}    0.0000
+
+{txt}{hline 19}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 20}{c |}{col 32}  Newey–West
+{col 1}          brooklyn{col 20}{c |} Coefficient{col 32}  std. err.{col 44}      t{col 52}   P>|t|{col 60}     [95% con{col 73}f. interval]
+{hline 19}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 13}covid {c |}{col 20}{res}{space 2}-160.7492{col 32}{space 2} 2348.033{col 43}{space 1}   -0.07{col 52}{space 3}0.946{col 60}{space 4}-4827.719{col 73}{space 3} 4506.221
+{txt}{space 18} {c |}
+{space 10}brooklyn {c |}
+{space 15}L1. {c |}{col 20}{res}{space 2} .6554831{col 32}{space 2} .1225338{col 43}{space 1}    5.35{col 52}{space 3}0.000{col 60}{space 4}  .411934{col 73}{space 3} .8990322
+{txt}{space 15}L2. {c |}{col 20}{res}{space 2} .0853469{col 32}{space 2} .1140752{col 43}{space 1}    0.75{col 52}{space 3}0.456{col 60}{space 4}-.1413898{col 73}{space 3} .3120837
+{txt}{space 15}L3. {c |}{col 20}{res}{space 2} .2554328{col 32}{space 2} .1195836{col 43}{space 1}    2.14{col 52}{space 3}0.035{col 60}{space 4} .0177476{col 73}{space 3} .4931181
+{txt}{space 15}L4. {c |}{col 20}{res}{space 2} -.300036{col 32}{space 2} .0727393{col 43}{space 1}   -4.12{col 52}{space 3}0.000{col 60}{space 4}-.4446132{col 73}{space 3}-.1554588
+{txt}{space 18} {c |}
+{space 14}nyur {c |}{col 20}{res}{space 2}-527.2816{col 32}{space 2} 226.5111{col 43}{space 1}   -2.33{col 52}{space 3}0.022{col 60}{space 4} -977.497{col 73}{space 3}-77.06628
+{txt}{space 6}std_min_wage {c |}{col 20}{res}{space 2} 30992.42{col 32}{space 2} 12357.33{col 43}{space 1}    2.51{col 52}{space 3}0.014{col 60}{space 4} 6430.878{col 73}{space 3} 55553.95
+{txt}{space 5}mortgage_rate {c |}{col 20}{res}{space 2} 1456.429{col 32}{space 2} 606.3052{col 43}{space 1}    2.40{col 52}{space 3}0.018{col 60}{space 4} 251.3314{col 73}{space 3} 2661.526
+{txt}median_square_feet {c |}{col 20}{res}{space 2} 25.93915{col 32}{space 2} 10.56826{col 43}{space 1}    2.45{col 52}{space 3}0.016{col 60}{space 4} 4.933589{col 73}{space 3}  46.9447
+{txt}{space 1}new_listing_count {c |}{col 20}{res}{space 2} .0639247{col 32}{space 2} .1008243{col 43}{space 1}    0.63{col 52}{space 3}0.528{col 60}{space 4}-.1364745{col 73}{space 3} .2643239
+{txt}{space 17}t {c |}{col 20}{res}{space 2}-220.8594{col 32}{space 2} 109.1736{col 43}{space 1}   -2.02{col 52}{space 3}0.046{col 60}{space 4}-437.8537{col 73}{space 3}-3.865138
+{txt}{space 13}_cons {c |}{col 20}{res}{space 2} 137463.4{col 32}{space 2} 30445.79{col 43}{space 1}    4.52{col 52}{space 3}0.000{col 60}{space 4} 76949.08{col 73}{space 3} 197977.7
+{txt}{hline 19}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+
+{com}. 
+. newey queens covid L.queens L2.queens L3.queens L4.queens nyur std_min_wage mortgage_rate median_square_feet new_listing_count t, lag(4)
+
+{txt}Regression with Newey–West standard errors{col 49}Number of obs{col 67}= {res}        99
+{txt}Maximum lag = {res}4{col 49}{txt}F( 11,        87){col 67}= {res}    309.37
+{col 49}{txt}Prob > F{col 67}= {res}    0.0000
+
+{txt}{hline 19}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 20}{c |}{col 32}  Newey–West
+{col 1}            queens{col 20}{c |} Coefficient{col 32}  std. err.{col 44}      t{col 52}   P>|t|{col 60}     [95% con{col 73}f. interval]
+{hline 19}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 13}covid {c |}{col 20}{res}{space 2}  4195.22{col 32}{space 2} 1020.071{col 43}{space 1}    4.11{col 52}{space 3}0.000{col 60}{space 4} 2167.719{col 73}{space 3} 6222.721
+{txt}{space 18} {c |}
+{space 12}queens {c |}
+{space 15}L1. {c |}{col 20}{res}{space 2} .8203688{col 32}{space 2} .0846524{col 43}{space 1}    9.69{col 52}{space 3}0.000{col 60}{space 4} .6521129{col 73}{space 3} .9886246
+{txt}{space 15}L2. {c |}{col 20}{res}{space 2} .1426008{col 32}{space 2} .1314005{col 43}{space 1}    1.09{col 52}{space 3}0.281{col 60}{space 4}-.1185719{col 73}{space 3} .4037735
+{txt}{space 15}L3. {c |}{col 20}{res}{space 2} .0641183{col 32}{space 2} .1666721{col 43}{space 1}    0.38{col 52}{space 3}0.701{col 60}{space 4}-.2671605{col 73}{space 3} .3953971
+{txt}{space 15}L4. {c |}{col 20}{res}{space 2} -.077976{col 32}{space 2} .1247571{col 43}{space 1}   -0.63{col 52}{space 3}0.534{col 60}{space 4}-.3259443{col 73}{space 3} .1699923
+{txt}{space 18} {c |}
+{space 14}nyur {c |}{col 20}{res}{space 2}-711.7693{col 32}{space 2} 94.68445{col 43}{space 1}   -7.52{col 52}{space 3}0.000{col 60}{space 4}-899.9648{col 73}{space 3}-523.5737
+{txt}{space 6}std_min_wage {c |}{col 20}{res}{space 2} 11200.93{col 32}{space 2} 6647.885{col 43}{space 1}    1.68{col 52}{space 3}0.096{col 60}{space 4} -2012.46{col 73}{space 3} 24414.32
+{txt}{space 5}mortgage_rate {c |}{col 20}{res}{space 2}-731.8383{col 32}{space 2} 301.4012{col 43}{space 1}   -2.43{col 52}{space 3}0.017{col 60}{space 4}-1330.906{col 73}{space 3}-132.7709
+{txt}median_square_feet {c |}{col 20}{res}{space 2} 7.801844{col 32}{space 2} 6.094647{col 43}{space 1}    1.28{col 52}{space 3}0.204{col 60}{space 4}-4.311927{col 73}{space 3} 19.91562
+{txt}{space 1}new_listing_count {c |}{col 20}{res}{space 2}-.0455652{col 32}{space 2} .0594208{col 43}{space 1}   -0.77{col 52}{space 3}0.445{col 60}{space 4}-.1636706{col 73}{space 3} .0725401
+{txt}{space 17}t {c |}{col 20}{res}{space 2}-110.9628{col 32}{space 2} 80.97477{col 43}{space 1}   -1.37{col 52}{space 3}0.174{col 60}{space 4}-271.9089{col 73}{space 3} 49.98337
+{txt}{space 13}_cons {c |}{col 20}{res}{space 2} 9447.802{col 32}{space 2} 14100.46{col 43}{space 1}    0.67{col 52}{space 3}0.505{col 60}{space 4}-18578.38{col 73}{space 3} 37473.98
+{txt}{hline 19}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+
+{com}. 
+. *save the working file*
+. save "C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\Term_Paper_Restricted_Variables.dta", replace
+{txt}{p 0 4 2}
+file {bf}
+C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\Term_Paper_Restricted_Variables.dta{rm}
+saved
+{p_end}
+
+{com}. 
+{txt}end of do-file
+
+{com}. log close
+      {txt}name:  {res}<unnamed>
+       {txt}log:  {res}C:\Users\dhair\OneDrive - University of Toronto\YEAR 3\SEMESTER 2\ECO475\Term Paper\475 Term Paper Log.smcl
+  {txt}log type:  {res}smcl
+ {txt}closed on:  {res}11 Apr 2025, 15:45:48
+{txt}{.-}
+{smcl}
+{txt}{sf}{ul off}
